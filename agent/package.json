@@ -1,0 +1,12 @@
+{
+  "name": "devtools-agent",
+  "version": "1.0.0",
+  "description": "全栈工程师工具集本地 Agent：仅监听 127.0.0.1 的 HTTP 请求调试代理",
+  "main": "agent.js",
+  "scripts": {
+    "start": "node agent.js"
+  },
+  "engines": {
+    "node": ">=14"
+  }
+}
