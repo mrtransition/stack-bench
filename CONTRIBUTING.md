@@ -64,6 +64,15 @@ node agent/agent.js &          # 记下 Token
 AGENT_TOKEN=<token> npm run selftest:examples
 ```
 
+### 命令面板自测（改动导航 / 面板 / 卡片交互后必跑）
+
+```bash
+npm run selftest:palette
+```
+
+用真实鼠标事件验证：悬停后点击结果能跳转、搜索结果第 N 项能跳转、`↓↓ + Enter` 能跳转、
+点遮罩只关闭不跳转。早先版本因悬停重渲染导致 `click` 丢失，这条用例专门防回归。
+
 ## 新增工具的六个步骤
 
 以「文本反转」为例，完整可运行代码见下一节。

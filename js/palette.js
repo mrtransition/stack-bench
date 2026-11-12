@@ -87,10 +87,20 @@ function renderList() {
   `).join('');
   const activeEl = listEl.querySelector('li.active');
   if (activeEl) activeEl.scrollIntoView({ block: 'nearest' });
-  listEl.querySelectorAll('li.p-item').forEach(li => {
-    li.addEventListener('mouseenter', () => { active = +li.dataset.i; renderList(); });
-    li.addEventListener('click', () => openTool(flat[+li.dataset.i].id));
-  });
+}
+
+/**
+ * 切换高亮项：只改 class，不重建列表。
+ * 早先悬停时整表重渲染，鼠标按下与抬起落在两个不同节点上，click 不会触发，
+ * 导致「鼠标点结果没反应」。列表节点保持稳定后点击即可正常跳转。
+ */
+function setActive(i, scroll = false) {
+  active = i;
+  for (const li of listEl.querySelectorAll('li.p-item')) {
+    const on = Number(li.dataset.i) === i;
+    li.classList.toggle('active', on);
+    if (on && scroll) li.scrollIntoView({ block: 'nearest' });
+  }
 }
 
 function refresh() {
@@ -126,8 +136,8 @@ function onKeyDown(e) {
   }
   if (!opened) return;
   if (e.key === 'Escape') { e.preventDefault(); close(); }
-  else if (e.key === 'ArrowDown') { e.preventDefault(); active = Math.min(active + 1, flat.length - 1); renderList(); }
-  else if (e.key === 'ArrowUp') { e.preventDefault(); active = Math.max(active - 1, 0); renderList(); }
+  else if (e.key === 'ArrowDown') { e.preventDefault(); setActive(Math.min(active + 1, flat.length - 1), true); }
+  else if (e.key === 'ArrowUp') { e.preventDefault(); setActive(Math.max(active - 1, 0), true); }
   else if (e.key === 'Enter') { e.preventDefault(); if (flat[active]) openTool(flat[active].id); }
 }
 
@@ -141,6 +151,19 @@ export function initPalette() {
   inputEl.addEventListener('input', refresh);
   document.addEventListener('keydown', onKeyDown);
   window.addEventListener('wb:open-palette', e => open(e.detail || ''));
+
+  // 事件委托（listEl 常驻）：悬停高亮、点击整行直接跳转
+  listEl.addEventListener('pointerover', e => {
+    const li = e.target.closest('li.p-item');
+    if (li) setActive(Number(li.dataset.i));
+  });
+  listEl.addEventListener('click', e => {
+    const li = e.target.closest('li.p-item');
+    if (!li) return;
+    e.preventDefault();
+    const tool = flat[Number(li.dataset.i)];
+    if (tool) openTool(tool.id);
+  });
 }
 
 // 供首页搜索框直接带词唤起
