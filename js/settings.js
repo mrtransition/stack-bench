@@ -61,12 +61,15 @@ export function renderSettings(app) {
       </div>
       <details class="set-details">
         <summary>如何启动本地 Agent</summary>
-        <pre class="out">cd agent
-node agent.js
+        <pre class="out"># 在项目根目录执行（推荐，一条命令起站点 + Agent）
+npm run dev
+
+# 只启动 Agent
+npm run agent
 
 # 自定义端口
-AGENT_PORT=7420 node agent.js</pre>
-        <p class="set-desc">启动后把终端打印的 <code>http://127.0.0.1:7420</code> 与 Token 填入上方并保存。Agent 未启动时敏感工具不会发送任何数据，也不会降级为云端上传。</p>
+AGENT_PORT=7420 npm run agent</pre>
+        <p class="set-desc">启动后终端会打印完整地址（如 <code>http://127.0.0.1:7420</code>）与随机 Token，填入上方保存即可。Agent 未启动时敏感工具不会发送任何数据，也不会降级为云端上传。</p>
       </details>
     </section>
 

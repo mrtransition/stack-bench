@@ -360,13 +360,36 @@ const server = http.createServer(async (req, res) => {
 
 // 仅监听回环地址
 server.listen(PORT, '127.0.0.1', () => {
-  console.log('==============================================');
-  console.log('  全栈工具集 · 本地 HTTP 调试 Agent 已启动');
-  console.log('  监听地址 : http://127.0.0.1:' + PORT + '（仅本机）');
-  console.log('  本机 Token: ' + TOKEN);
-  console.log('  请将 Token 粘贴到「HTTP 请求调试」工具页');
-  console.log('  本 Agent 不记录请求内容，不连接任何云端服务');
-  console.log('==============================================');
+  if (process.env.AGENT_QUIET) {
+    // 由 scripts/dev.mjs 托管时只留一行，避免与启动横幅重复
+    console.log('  [agent] 就绪 http://127.0.0.1:' + PORT);
+    return;
+  }
+  console.log('');
+  console.log('  ▚ StackBench · 本地 Agent 已启动');
+  console.log('  ' + '-'.repeat(56));
+  console.log('  Agent 地址  http://127.0.0.1:' + PORT + '  （仅本机可访问）');
+  console.log('  Token       ' + TOKEN);
+  console.log('  ' + '-'.repeat(56));
+  console.log('  下一步：把上面两行填到「设置 → Agent 配置」，或粘贴到工具页');
+  console.log('  工具直达    http://127.0.0.1:8321/#/tool/http-client    （HTTP 请求调试）');
+  console.log('              http://127.0.0.1:8321/#/tool/cert-parse     （证书解析）');
+  console.log('              http://127.0.0.1:8321/#/tool/hmac-jwt       （HMAC / JWT）');
+  console.log('              http://127.0.0.1:8321/#/tool/k8s-yaml       （K8s / Compose 校验）');
+  console.log('  ' + '-'.repeat(56));
+  console.log('  本 Agent 不记录请求内容，不连接任何云端服务 · Ctrl + C 停止');
+  console.log('');
+});
+
+server.on('error', err => {
+  if (err.code === 'EADDRINUSE') {
+    console.error('[agent] 端口 ' + PORT + ' 已被占用，请换端口后重试：');
+    console.error('        AGENT_PORT=7421 node agent/agent.js');
+    console.error('        或 AGENT_PORT=7421 npm run agent');
+    process.exit(1);
+  }
+  console.error('[agent] 启动失败:', err.message);
+  process.exit(1);
 });
 
 process.on('uncaughtException', err => {

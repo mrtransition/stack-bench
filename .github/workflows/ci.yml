@@ -25,7 +25,7 @@ jobs:
       - name: Syntax check (all ES modules)
         run: |
           fail=0
-          for f in $(find js lib tools workers tests \( -name '*.js' -o -name '*.mjs' \) | sort); do
+          for f in $(find js lib tools workers tests scripts \( -name '*.js' -o -name '*.mjs' \) | sort); do
             if ! node --input-type=module --check < "$f"; then
               echo "SYNTAX FAIL: $f"
               fail=1

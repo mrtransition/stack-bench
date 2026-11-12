@@ -24,18 +24,43 @@
 git clone https://github.com/mrtransition/stack-bench.git
 cd stack-bench
 
-npm run serve          # 等价于 python -m http.server 8321
-# 或 npx serve .
-# 浏览器打开 http://127.0.0.1:8321
+npm start              # 零依赖本地服务器，无需 npm install
 ```
+
+启动后控制台会打印**完整可点击地址**，点击或复制即可打开：
+
+```
+  ▚ StackBench v0.1.2  本地服务已就绪
+  ──────────────────────────────────────────────────────────
+  首页       http://127.0.0.1:8321/
+  命令面板   http://127.0.0.1:8321/#/  ← Ctrl + K 搜索 26 个工具
+  设置       http://127.0.0.1:8321/#/settings
+  直达工具   http://127.0.0.1:8321/#/tool/json-format
+  ──────────────────────────────────────────────────────────
+```
+
+端口被占用时会自动顺延并在横幅里提示实际地址；`Ctrl + C` 停止服务。
+
+| 命令 | 说明 |
+|---|---|
+| `npm start` | 启动本地站点，默认 `http://127.0.0.1:8321/` |
+| `npm run dev` | 同时启动本地 Agent（地址 + Token 一并打印） |
+| `npm start -- --open` | 启动后自动打开默认浏览器 |
+| `npm start -- --port 9000` | 指定端口（占用自动顺延） |
+| `npm start -- --host 0.0.0.0` | 允许局域网访问，额外打印局域网地址 |
+| `npm run agent` | 仅启动 Agent，打印地址、Token 与工具直达链接 |
+
+> 也可以用任意静态服务器，例如 `python -m http.server 8321` 或 `npx serve .`。
 
 ### 本地 Agent（Agent 类工具需要）
 
 ```bash
-npm run agent          # 等价于 node agent/agent.js
+npm run dev            # 推荐：站点 + Agent 一起启动
+# 或
+npm run agent          # 仅 Agent，默认 http://127.0.0.1:7420
 ```
 
-启动后终端会打印 `http://127.0.0.1:7420` 与**随机 Token**，把 Token 粘贴到工具页或「设置 → Agent 配置」即可。
+启动后终端会打印 `http://127.0.0.1:7420`、**随机 Token** 以及各工具直达链接，把地址与 Token 填到「设置 → Agent 配置」（或点顶栏 Agent 状态图标）即可。
 
 ### 测试
 

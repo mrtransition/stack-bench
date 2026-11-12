@@ -1,6 +1,6 @@
 {
   "name": "stack-bench",
-  "version": "0.1.0",
+  "version": "0.1.2",
   "description": "Local-first toolbox for full-stack engineers — zero build, no data upload.",
   "private": true,
   "type": "module",
@@ -11,10 +11,13 @@
     "url": "git+https://github.com/mrtransition/stack-bench.git"
   },
   "scripts": {
+    "start": "node scripts/dev.mjs",
+    "serve": "node scripts/dev.mjs",
+    "dev": "node scripts/dev.mjs --agent",
+    "open": "node scripts/dev.mjs --open",
+    "agent": "node agent/agent.js",
     "test": "node --test tests/*.test.mjs",
-    "selftest:examples": "node tests/manual/examples-selftest.mjs",
-    "serve": "python -m http.server 8321",
-    "agent": "node agent/agent.js"
+    "selftest:examples": "node tests/manual/examples-selftest.mjs"
   },
   "engines": {
     "node": ">=20"

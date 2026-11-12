@@ -4,8 +4,7 @@
 
 ## 环境要求
 
-- **Node.js 20+**（仅用于跑测试；页面本身在浏览器中运行）
-- 任意静态服务器（`python -m http.server` / `npx serve`）
+- **Node.js 20+**（用于启动本地服务与跑测试；页面本身在浏览器中运行）
 - 不需要 `npm install` —— 本项目零依赖
 
 ## 本地运行
@@ -14,17 +13,27 @@
 git clone https://github.com/mrtransition/stack-bench.git
 cd stack-bench
 
-# 启动静态服务（任选其一）
-python -m http.server 8321
-npx serve .
-
-# 浏览器打开 http://127.0.0.1:8321
+npm start        # 零依赖本地服务器，启动后直接打印完整地址
 ```
+
+控制台会输出可直接点击/复制的地址：
+
+```
+  ▚ StackBench v0.1.2  本地服务已就绪
+  ──────────────────────────────────────────────────────────
+  首页       http://127.0.0.1:8321/
+  命令面板   http://127.0.0.1:8321/#/  ← Ctrl + K 搜索 26 个工具
+  设置       http://127.0.0.1:8321/#/settings
+```
+
+常用参数：`npm start -- --open`（自动开浏览器）、`--port 9000`（端口占用会自动顺延）、`--host 0.0.0.0`（局域网访问，会打印局域网地址）。也可以用任意静态服务器，例如 `python -m http.server 8321`。
 
 涉及 Agent 的工具（HTTP 调试、证书解析、验签、YAML 校验）：
 
 ```bash
-node agent/agent.js     # 打印 http://127.0.0.1:7420 与随机 Token
+npm run dev             # 一次启动静态站点 + Agent，地址与 Token 一起打印
+# 或分两步
+npm run agent           # 打印 http://127.0.0.1:7420、随机 Token 与工具直达链接
 ```
 
 ## 跑测试
