@@ -54,7 +54,16 @@ export async function render(body, ctx) {
     run,
     clear() { taIn.value = ''; out.textContent = ''; out.className = 'out'; },
     copy() { ctx.copyText(out.textContent); },
-    example() { taIn.value = ctx.tool.examples[0]; run(); },
+    // 示例为 YAML 文本：自动切到 YAML → JSON，避免方向与内容不匹配而报错
+    example() {
+      const ex = ctx.tool.examples[0];
+      taIn.value = ex;
+      const looksJson = /^\s*[[{]/.test(ex);
+      state.op = looksJson ? 'json2yaml' : 'yaml2json';
+      $('jy-dir').querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.v === state.op));
+      syncLabel();
+      run();
+    },
     share() { return { text: taIn.value, op: state.op }; }
   };
 

@@ -84,5 +84,5 @@ export async function render(body, ctx) {
     kind = ctx.params.kind;
     $('ky-kind').querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.v === kind));
   }
-  ping();
+  statusEl.innerHTML = agentStatusHtml(await pingAgent());
 }

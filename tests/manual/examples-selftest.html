@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>StackBench 示例自测</title>
+<style>body{background:#111;color:#0f0;font:12px ui-monospace,monospace;white-space:pre-wrap}</style>
+</head>
+<body>
+<pre id="out">running…</pre>
+<script type="module">
+// 逐一点击每个工具的「加载示例」，记录执行状态、输出与 JS 异常。
+// 由 examples-selftest.mjs 通过 CDP 调用 window.__runAll()，也可直接在浏览器打开查看。
+import { all } from '/js/registry.js';
+
+const OUT = document.getElementById('out');
+const wait = ms => new Promise(r => setTimeout(r, ms));
+
+async function testTool(t) {
+  const res = { id: t.id, executor: t.executor, hasExamples: !!(t.examples && t.examples.length), ok: false, status: '', out: '', err: '', js: [] };
+  const frame = document.createElement('iframe');
+  frame.style.cssText = 'width:1200px;height:800px;position:absolute;left:-9999px';
+  frame.src = '/#/tool/' + t.id;
+  document.body.appendChild(frame);
+
+  await new Promise(r => { frame.onload = r; setTimeout(r, 3000); });
+  const w = frame.contentWindow, d = frame.contentDocument;
+  w.addEventListener('error', e => res.js.push('JS:' + (e.message || e.type)));
+  w.addEventListener('unhandledrejection', e => res.js.push('REJECT:' + ((e.reason && e.reason.message) || e.reason)));
+
+  for (let i = 0; i < 50 && !(d && d.querySelector('#act-example')); i++) await wait(100);
+  if (!d || !d.querySelector('#act-example')) { res.err = '页面未渲染'; frame.remove(); return res; }
+
+  d.querySelector('#act-example').click();
+
+  let outText = '';
+  for (let i = 0; i < 60; i++) {
+    await wait(100);
+    const b = d.querySelector('#tool-body');
+    const outEl = b && b.querySelector('#ky-out, pre, .ok-box, .warn-box, .diff-wrap, table');
+    outText = outEl ? outEl.textContent.trim().replace(/\s+/g, ' ') : '';
+    res.status = (d.querySelector('#act-status') || {}).textContent || '';
+    if (outText || /失败/.test(res.status)) break;
+  }
+  res.out = outText.slice(0, 90);
+  const errBox = d.querySelector('.err-box, pre.err');
+  res.err = errBox ? errBox.textContent.trim().slice(0, 120) : '';
+  res.ok = !res.err && !res.js.length && !/失败/.test(res.status) && !!res.out;
+  frame.remove();
+  return res;
+}
+
+window.__runAll = async () => {
+  const results = [];
+  for (const t of all()) {
+    const r = await testTool(t);
+    results.push(r);
+    OUT.textContent += '\n' + r.id + (r.ok ? ' ✅' : ' ⚠') + ' ' + (r.err || r.out || r.status);
+  }
+  window.__results = results;
+  return results;
+};
+</script>
+</body>
+</html>

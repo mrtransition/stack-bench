@@ -12,6 +12,22 @@
 
 详见 [ROADMAP.md](./ROADMAP.md)。
 
+## [0.1.1] - 2026-11-12
+
+### Fixed
+- **「加载示例」报错（用户首访最常点的入口）**
+  - `json-yaml`：示例是 YAML 但默认方向为 JSON→YAML，点击后必报 `Unexpected token 's'`；现在示例会按内容自动切换方向
+  - `k8s-yaml`：初始化时调用了不存在的 `ping()`，页面抛 `ReferenceError`；改为 `pingAgent()` 并渲染连接状态
+  - `jwt-parse`：示例 Token 已于 2018 年过期，加载即标红；换成 2033 年到期的示例
+  - `env-format`：示例故意含非法行，加载即报红；改为合法内容（保留脱敏/排序演示）
+  - `cert-parse`：示例为空、只弹提示；内置一张 10 年期自签演示证书，加载即可看到完整解析结果
+- 测试命令兼容性：`node --test tests/*.test.mjs`（Node 20 不展开引号 glob，Windows 由 Node 21+ 原生 glob 兜底）
+
+### Added
+- `npm run selftest:examples`：用真实浏览器（CDP）逐一点击全部工具「加载示例」，0 失败才退出，防止示例回归
+- `vendor/package.json` 固定 CommonJS 作用域，避免根 `type: module` 影响 `require` 加载 js-yaml
+
+
 ## [0.1.0] - 2026-11-12
 
 首个可用版本：26 个工具 + 本地 Agent + 统一框架。

@@ -37,6 +37,24 @@ node --test tests/*.test.mjs
 
 CI 会在 Node 20 / 22 上执行同样的命令，以及全部 JS 文件的语法检查，PR 必须全绿才能合并。
 
+### 示例自测（新增或修改工具后必跑）
+
+「加载示例」是用户的第一入口，示例报错等于工具不可用。本地起服务后执行：
+
+```bash
+npm run selftest:examples
+# 或指定浏览器 / 服务地址
+BROWSER_BIN="C:/path/to/chrome.exe" BASE_URL=http://127.0.0.1:8080 npm run selftest:examples
+```
+
+脚本会用真实浏览器逐一点击 26 个工具的「加载示例」，输出 `✅ / ❌ / ⚠（需要 Agent）/ ℹ（无示例）`，
+任何非 Agent 工具变 ❌ 都会以非零码退出。检测 Agent 类工具时先启动 Agent 并注入 Token：
+
+```bash
+node agent/agent.js &          # 记下 Token
+AGENT_TOKEN=<token> npm run selftest:examples
+```
+
 ## 新增工具的六个步骤
 
 以「文本反转」为例，完整可运行代码见下一节。

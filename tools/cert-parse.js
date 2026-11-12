@@ -70,7 +70,7 @@ export async function render(body, ctx) {
     run,
     clear() { taIn.value = ''; outEl.innerHTML = ''; },
     copy() { const c = outEl.querySelector('code'); ctx.copyText(c ? c.textContent : outEl.textContent); },
-    example() { taIn.value = ''; ctx.notify('请粘贴您的 PEM 证书文本（示例不内置证书）'); },
+    example() { taIn.value = ctx.tool.examples[0] || ''; if (taIn.value) run(); },
     share() { return null; }
   };
 
