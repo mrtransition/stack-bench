@@ -97,6 +97,19 @@ AGENT_TOKEN=<token> npm run selftest:examples
 > 双栏布局：注册项加 `layout: 'split'`，然后把输入块包进 `<div class="pane-in">`、输出块包进 `<div class="pane-out">`，
 > 其余需要横跨整行的元素用 `pane-full`。布局、分隔条、响应式都由外壳统一处理。
 
+### 输出区自动复制按钮
+
+`js/copy-affix.js` 会自动给每个输出容器右上角挂一个悬浮「复制」按钮，工具侧零改动。
+识别规则（命中其一即可，自动取最外层，避免嵌套双按钮）：
+
+- `<pre class="out">`：纯文本输出，复制原样文本
+- `<div id="xx-out">`：富结果容器（表格 / 卡片），块级内容按行提取，`<table>` 自动转 **TSV**（可直接粘贴进 Excel / 飞书表格）
+- 任意元素加 `data-copy`：显式标注
+- `.diff-wrap`：表格容器兜底
+
+占位提示（`.info-box`）与空输出不会显示按钮；工具执行、清空、报错后按钮状态自动同步。
+自测：`node tests/manual/copy-affix-check.mjs` 会用真实浏览器点按钮并校验复制内容。
+
 ## 最小示例：文本反转
 
 ### 1. `lib/revx.js`

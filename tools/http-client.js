@@ -184,9 +184,9 @@ export async function render(body, ctx) {
       store.pushHttpHistory({ method, url, status: data.status, timeMs: data.timeMs });
       renderHistory();
     } catch (err) {
-      respBox.className = 'err-box';
-      respBox.textContent = '❌ 请求失败：' + err.message +
-        (err.message.includes('Failed to fetch') ? '（Agent 不可达或 Token 校验失败）' : '');
+      // 用 pre.out 承载错误，复用输出区的「复制」按钮
+      respBox.className = '';
+      respBox.innerHTML = `<pre class="out err">❌ 请求失败：${escHtml(err.message)}${err.message.includes('Failed to fetch') ? '（Agent 不可达或 Token 校验失败）' : ''}</pre>`;
       store.pushHttpHistory({ method, url, status: 'ERR' });
       renderHistory();
     }

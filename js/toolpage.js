@@ -2,6 +2,7 @@
 import { get as getTool, EXEC_LABEL } from './registry.js';
 import { store } from './store.js';
 import { notify, copyText } from './toast.js';
+import { mountCopyAffix } from './copy-affix.js';
 import { encodeParams } from '../lib/codec.js';
 
 function esc(s) {
@@ -133,6 +134,9 @@ export async function openTool(root, id, params) {
   };
 
   await mod.render(body, ctx);
+
+  // 每个输出容器自动挂「复制」按钮（工具侧零改动）
+  mountCopyAffix(body);
 
   const favBtn = root.querySelector('#fav-btn');
   const syncFav = () => {

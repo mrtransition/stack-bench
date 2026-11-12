@@ -1,6 +1,6 @@
 {
   "name": "stack-bench",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Local-first toolbox for full-stack engineers — zero build, no data upload.",
   "private": true,
   "type": "module",

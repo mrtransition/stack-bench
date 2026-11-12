@@ -98,7 +98,7 @@ if (r.result && r.result.exceptionDetails) {
 }
 
 const rows = r.result.result.value || [];
-let failed = 0, agentSkipped = 0, noExample = 0;
+let failed = 0, agentSkipped = 0, noExample = 0, noCopy = 0;
 for (const row of rows) {
   const agentTool = row.executor === 'agent' || row.executor === 'hybrid';
   let mark;
@@ -106,9 +106,11 @@ for (const row of rows) {
   else if (agentTool) { mark = '⚠ '; agentSkipped++; }
   else if (!row.hasExamples) { mark = 'ℹ '; noExample++; }
   else { mark = '❌'; failed++; }
-  const detail = row.ok ? '' : (row.err || row.js.join(' | ') || row.status || '无输出');
+  const chip = row.copyChips ? `复制×${row.copyChips}` : (row.out ? '⚠ 有输出但无复制按钮' : '—');
+  if (!row.copyChips && row.out) noCopy++;
+  const detail = row.ok ? chip : (row.err || row.js.join(' | ') || row.status || '无输出');
   console.log(`${mark} ${row.id.padEnd(18)} ${detail}`);
 }
 
-console.log(`\n合计 ${rows.length} 个工具：失败 ${failed}，Agent 未启动而跳过 ${agentSkipped}，无示例 ${noExample}`);
-process.exit(failed ? 1 : 0);
+console.log(`\n合计 ${rows.length} 个工具：失败 ${failed}，Agent 未启动而跳过 ${agentSkipped}，无示例 ${noExample}，缺复制按钮 ${noCopy}`);
+process.exit(failed || noCopy ? 1 : 0);

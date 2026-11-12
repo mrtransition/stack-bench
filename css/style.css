@@ -136,6 +136,26 @@ pre.out {
 }
 pre.out.ok { border-color: var(--ok); }
 pre.out.err { border-color: var(--err); color: var(--err); }
+
+/* 输出区悬浮复制按钮（js/copy-affix.js 注入） */
+.copy-wrap { position: relative; }
+.copy-wrap > pre.out { padding-right: 66px; }
+.copy-chip {
+  position: absolute; top: 6px; right: 6px; z-index: 3;
+  padding: 2px 9px; border-radius: 6px; cursor: pointer;
+  border: 1px solid var(--border); background: var(--panel); color: var(--muted);
+  font: 11.5px/1.6 inherit; letter-spacing: .2px;
+  opacity: .95; transition: color .15s, border-color .15s, background .15s, opacity .15s;
+}
+.copy-chip:hover { color: var(--accent); border-color: var(--accent); background: var(--card-hover); }
+.copy-chip:active { transform: translateY(1px); }
+.copy-chip:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.copy-chip.is-done { color: var(--ok); border-color: var(--ok); }
+.copy-chip.is-fail { color: var(--err); border-color: var(--err); }
+.copy-chip.is-empty { display: none; }
+:root[data-theme="cyber"] .copy-chip { background: #0b0818e6; border-color: #ff2ea655; color: var(--muted); }
+:root[data-theme="cyber"] .copy-chip:hover { border-color: var(--accent); color: var(--accent); box-shadow: 0 0 12px #ff2ea64d; }
+
 .err-box {
   background: var(--code-bg); border: 1px solid var(--err); border-radius: 8px;
   color: var(--err); padding: 10px; font-size: 12.5px; white-space: pre-wrap;
