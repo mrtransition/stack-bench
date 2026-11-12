@@ -1,0 +1,89 @@
+name: 新增工具提案
+description: 提议一个符合项目定位的新工具
+title: "[Tool] "
+labels: ["enhancement", "new-tool"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        提案前请先阅读 [ROADMAP.md](../blob/main/ROADMAP.md) 的「新增工具的优先级规则」与「明确不做」。
+        一句话标准：**本地可完成、高频、可测、不重复**。
+
+  - type: input
+    id: name
+    attributes:
+      label: 工具名称
+      placeholder: 例如：JWT 生成器
+    validations:
+      required: true
+
+  - type: textarea
+    id: purpose
+    attributes:
+      label: 用途与使用场景
+      description: 你在什么场景下会用到它？现在怎么解决的？
+    validations:
+      required: true
+
+  - type: dropdown
+    id: executor
+    attributes:
+      label: 执行位置
+      description: 需要系统能力（密钥、证书、真实网络请求）的必须选本地 Agent
+      options:
+        - 浏览器本地（纯前端）
+        - 浏览器 + Web Worker（大文本）
+        - 本地 Agent（需要密钥 / 证书 / 真实请求）
+    validations:
+      required: true
+
+  - type: dropdown
+    id: sensitive
+    attributes:
+      label: 是否涉及敏感数据（密钥、证书、凭据、内网地址）
+      options:
+        - "否"
+        - "是（sensitive: true, shareable: false）"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: shareable
+    attributes:
+      label: 是否支持分享链接（把输入编码进 URL）
+      options:
+        - 支持
+        - 不支持（敏感工具强制不支持）
+    validations:
+      required: true
+
+  - type: dropdown
+    id: tests
+    attributes:
+      label: 是否愿意补齐测试（正常 / 边界 / 错误输入）
+      description: 合并前必须有测试；如果你不写，需要说明是否需要维护者协助
+      options:
+        - 愿意，我能提供单测
+        - 可以做，但需要指导
+        - 只能提供需求与样例
+    validations:
+      required: true
+
+  - type: textarea
+    id: sample
+    attributes:
+      label: 输入输出样例
+      description: 给出 1–2 组典型输入与期望输出，便于编写测试
+      render: text
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: confirm
+    attributes:
+      label: 确认
+      options:
+        - label: 我已确认这不属于「明确不做」的范围
+          required: true
+        - label: 我已搜索过，没有重复提案
+          required: true

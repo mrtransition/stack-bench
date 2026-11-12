@@ -1,0 +1,85 @@
+name: Bug 报告
+description: 工具有问题、页面异常、Agent 无法启动
+title: "[Bug] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        感谢反馈！提交前请先搜索是否已有相同 Issue。
+        **安全漏洞请勿在此公开**，请按 [SECURITY.md](../blob/main/SECURITY.md) 私下报告。
+
+  - type: input
+    id: tool
+    attributes:
+      label: 受影响的工具
+      description: 工具名或 #/tool/<id> 中的 id，例如「JSON 格式化」/ json-format
+      placeholder: json-format
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: 复现步骤
+      description: 尽量最小化，能贴出触发问题的输入（敏感信息请脱敏）
+      placeholder: |
+        1. 打开 …
+        2. 输入 …
+        3. 点击 …
+        4. 看到 …
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: 期望结果 vs 实际结果
+    validations:
+      required: true
+
+  - type: input
+    id: browser
+    attributes:
+      label: 浏览器与版本
+      placeholder: Chrome 130 / Edge 130 / Firefox 132 / Safari 17
+    validations:
+      required: true
+
+  - type: input
+    id: node
+    attributes:
+      label: Node 版本（仅 Agent 相关问题需要）
+      placeholder: v20.18.0
+    validations:
+      required: false
+
+  - type: dropdown
+    id: agent
+    attributes:
+      label: 是否涉及本地 Agent
+      options:
+        - 不涉及（纯浏览器工具）
+        - 涉及，Agent 已启动
+        - 涉及，Agent 未启动或启动失败
+    validations:
+      required: true
+
+  - type: textarea
+    id: console
+    attributes:
+      label: 控制台 / 终端错误
+      description: 浏览器 DevTools Console、Network 面板或 Agent 终端输出
+      render: shell
+    validations:
+      required: false
+
+  - type: dropdown
+    id: env
+    attributes:
+      label: 访问方式
+      options:
+        - GitHub Pages 在线版
+        - 本地静态服务器
+    validations:
+      required: true

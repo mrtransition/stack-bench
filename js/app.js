@@ -63,7 +63,7 @@ function renderHome() {
     <section class="home-hero">
       <div class="hero-kicker">全栈工程师 · 本地优先工具箱</div>
       <h1>StackBench</h1>
-      <p class="hero-sub">${total} 个常用工具，纯浏览器处理，敏感能力走本机 Agent。</p>
+      <p class="hero-sub">${total} 个常用工具 · 所有数据在浏览器本地处理，不上传服务器</p>
       <button class="home-search" id="home-search" type="button">
         <span class="hs-ico">🔍</span>
         <span class="hs-txt">搜索工具、功能或关键词</span>

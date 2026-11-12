@@ -1,0 +1,38 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node-version: [20, 22]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Syntax check (all ES modules)
+        run: |
+          fail=0
+          for f in $(find js lib tools workers tests \( -name '*.js' -o -name '*.mjs' \) | sort); do
+            if ! node --input-type=module --check < "$f"; then
+              echo "SYNTAX FAIL: $f"
+              fail=1
+            fi
+          done
+          node --check agent/agent.js
+          exit $fail
+
+      - name: Unit tests
+        run: node --test "tests/*.test.mjs"

@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 安全漏洞（请勿公开）
+    url: https://github.com/mrtransition/stack-bench/security/advisories/new
+    about: 私下报告安全问题，走 GitHub Security Advisory
+  - name: 在线阅读文档
+    url: https://github.com/mrtransition/stack-bench/blob/main/CONTRIBUTING.md
+    about: 贡献指南：新增工具六步流程与最小示例

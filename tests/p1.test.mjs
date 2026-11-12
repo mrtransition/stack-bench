@@ -204,6 +204,19 @@ test('Markdown：表格', () => {
   assert.ok(html.includes('<td>1</td>'));
 });
 
+test('Markdown：危险协议链接被降级', () => {
+  const js = renderMarkdown('[x](javascript:alert(1))');
+  assert.ok(!js.includes('javascript:'));
+  assert.ok(js.includes('href="#"'));
+
+  const data = renderMarkdown('![i](data:text/html;base64,xxx)');
+  assert.ok(!data.includes('data:text/html'));
+
+  const safe = renderMarkdown('[ok](https://example.com)');
+  assert.ok(safe.includes('href="https://example.com"'));
+  assert.ok(safe.includes('rel="noopener noreferrer"'));
+});
+
 // ---------- Git ----------
 test('Git：精确解释与参数提示', () => {
   const r = explainGit('git reset --soft HEAD~1');
