@@ -226,12 +226,34 @@ function tryListen(server, port, host) {
   });
 }
 
+/**
+ * 端口上是否已有服务在响应。
+ * 仅靠 listen 的 EADDRINUSE 不够：Windows 上别的进程绑 0.0.0.0:8321 时，
+ * 我们仍可能绑上 127.0.0.1:8321，结果横幅给的地址被对方服务响应。先连一下最稳。
+ */
+function isPortInUse(port, host = '127.0.0.1') {
+  return new Promise(resolve => {
+    const sock = net.connect({ port, host });
+    let settled = false;
+    const finish = value => {
+      if (settled) return;
+      settled = true;
+      sock.destroy();
+      resolve(value);
+    };
+    sock.setTimeout(500, () => finish(false));
+    sock.once('connect', () => finish(true));
+    sock.once('error', () => finish(false));
+  });
+}
+
 async function listenWithFallback(handler, startPort, host) {
   const server = http.createServer(handler);
   let lastErr = null;
   for (let i = 0; i < MAX_PORT_TRIES; i++) {
     const port = startPort + i;
     if (port > 65535) break;
+    if (await isPortInUse(port)) continue;
     try {
       await tryListen(server, port, host);
       return { server, port, shifted: i > 0 };
@@ -240,7 +262,7 @@ async function listenWithFallback(handler, startPort, host) {
       if (err.code !== 'EADDRINUSE' && err.code !== 'EACCES') throw err;
     }
   }
-  throw new Error(`端口 ${startPort}~${startPort + MAX_PORT_TRIES - 1} 均不可用：${lastErr ? lastErr.message : '未知原因'}`);
+  throw new Error(`端口 ${startPort}~${startPort + MAX_PORT_TRIES - 1} 均不可用：${lastErr ? lastErr.message : '均已被占用'}`);
 }
 
 function findFreePort(startPort, host) {
