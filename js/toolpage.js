@@ -1,8 +1,9 @@
-// 工具页统一外壳：面包屑 + 标题行 + 吸顶操作栏 + 双栏 / 单栏内容 + 说明区
+// 工具页统一外壳：标题区（吸顶）+ 工作区 + 动作条（吸底）+ 说明区
 import { get as getTool, EXEC_LABEL } from './registry.js';
 import { store } from './store.js';
 import { notify, copyText } from './toast.js';
 import { mountCopyAffix } from './copy-affix.js';
+import { mountInputDrop } from './input-drop.js';
 import { icon } from './icons.js';
 import { encodeParams } from '../lib/codec.js';
 
@@ -12,16 +13,20 @@ function esc(s) {
 
 const SPLIT_KEY = id => 'wb.split.' + id;
 const NOTES_KEY = id => 'wb.notes.' + id;
+const SPLIT_MIN = 30;
+const SPLIT_MAX = 70;
 
 function initSplit(body, id) {
   const grip = document.createElement('div');
   grip.className = 'split-grip';
   grip.title = '拖拽调整输入 / 输出比例，双击复位';
+  grip.setAttribute('role', 'separator');
+  grip.setAttribute('aria-orientation', 'vertical');
   body.prepend(grip);
 
   let saved = NaN;
   try { saved = Number(localStorage.getItem(SPLIT_KEY(id))); } catch { /* 忽略 */ }
-  if (saved >= 30 && saved <= 70) body.style.setProperty('--split', saved + '%');
+  if (saved >= SPLIT_MIN && saved <= SPLIT_MAX) body.style.setProperty('--split', saved + '%');
 
   let dragging = false;
   grip.addEventListener('pointerdown', e => {
@@ -33,7 +38,7 @@ function initSplit(body, id) {
     if (!dragging) return;
     const r = body.getBoundingClientRect();
     if (!r.width) return;
-    const pct = Math.max(30, Math.min(70, ((e.clientX - r.left) / r.width) * 100));
+    const pct = Math.max(SPLIT_MIN, Math.min(SPLIT_MAX, ((e.clientX - r.left) / r.width) * 100));
     body.style.setProperty('--split', pct.toFixed(2) + '%');
   });
   const end = () => {
@@ -71,42 +76,45 @@ export async function openTool(root, id, params) {
 
   root.innerHTML = `
     <div class="tool-page">
-      <nav class="crumbs">
-        <a href="#/">首页</a><span class="sep">/</span>
-        <span class="crumb-cat">${esc(t.category)}</span><span class="sep">/</span>
-        <b>${esc(t.name)}</b>
-      </nav>
+      <header class="tool-top">
+        <nav class="crumbs">
+          <a href="#/">首页</a><span class="sep">/</span>
+          <span class="crumb-cat">${esc(t.category)}</span><span class="sep">/</span>
+          <b>${esc(t.name)}</b>
+        </nav>
 
-      <div class="tool-head">
-        <div class="tool-title">
-          <h1>${esc(t.name)}</h1>
-          <p class="muted">${esc(t.desc)}</p>
-          <div class="badge-row">
-            <span class="badge exec-${t.executor}"><i class="dot" aria-hidden="true"></i>${EXEC_LABEL[t.executor] || t.executor}</span>
-            ${t.sensitive ? `<span class="badge sensitive">${icon('lock', 11)} 本地处理 · 不上传</span>` : `<span class="badge">${icon('share', 11)} 可分享</span>`}
+        <div class="tool-head">
+          <div class="tool-title">
+            <h1>${esc(t.name)}</h1>
+            <p class="muted">${esc(t.desc)}</p>
+            <div class="badge-row">
+              <span class="badge exec-${t.executor}"><i class="dot" aria-hidden="true"></i>${EXEC_LABEL[t.executor] || t.executor}</span>
+              ${t.sensitive ? `<span class="badge sensitive">${icon('lock', 11)} 本地处理 · 不上传</span>` : `<span class="badge">${icon('share', 11)} 可分享</span>`}
+            </div>
+          </div>
+          <div class="head-actions">
+            <button id="fav-btn" class="icon-btn ${store.isFav(id) ? 'fav-on' : ''}" title="收藏 / 取消收藏" aria-label="收藏 / 取消收藏">${icon('star', 15)}</button>
+            <button id="share-btn" class="icon-btn" title="${t.shareable ? '生成分享链接' : '敏感工具不生成包含输入的分享链接'}" ${t.shareable ? '' : 'disabled'}>${icon('share', 14)} 分享</button>
           </div>
         </div>
-        <div class="head-actions">
-          <button id="fav-btn" class="icon-btn ${store.isFav(id) ? 'fav-on' : ''}" title="收藏 / 取消收藏" aria-label="收藏 / 取消收藏">${icon('star', 15)}</button>
-          <button id="share-btn" class="icon-btn" title="${t.shareable ? '生成分享链接' : '敏感工具不生成包含输入的分享链接'}" ${t.shareable ? '' : 'disabled'}>${icon('share', 14)} 分享</button>
-        </div>
-      </div>
-
-      <div class="action-bar">
-        <button id="act-run" class="btn primary">${esc(t.actionLabel || '执行')}</button>
-        <button id="act-clear" class="btn">清空</button>
-        <button id="act-example" class="btn">加载示例</button>
-        <button id="act-copy" class="btn">复制结果</button>
-        <span id="act-status" class="act-status">就绪</span>
-      </div>
+      </header>
 
       <div id="tool-body" class="${t.layout === 'split' ? 'layout-split' : ''}"></div>
+
+      <div class="action-bar" role="toolbar" aria-label="工具动作">
+        <button id="act-run" class="btn primary">${icon('play', 13)} ${esc(t.actionLabel || '运行')}</button>
+        <button id="act-example" class="btn">${icon('wand', 13)} 填入示例</button>
+        <button id="act-clear" class="btn">${icon('eraser', 13)} 清空</button>
+        <button id="act-copy" class="btn">${icon('copy', 13)} 复制结果</button>
+        <span id="act-status" class="act-status" role="status">就绪</span>
+      </div>
 
       <details class="tool-notes" ${firstVisit ? 'open' : ''}>
         <summary>说明与安全提示</summary>
         <div class="notes-body">
           <p>${esc(t.notes || '')}</p>
-          ${t.security ? `<p class="sec">${icon("lock", 12)} ${esc(t.security)}</p>` : ''}
+          ${t.security ? `<p class="sec">${icon('lock', 12)} ${esc(t.security)}</p>` : ''}
+          <p class="drop-tip">${icon('download', 12)} 支持把文本文件拖到输入区，或在页面任意处直接粘贴</p>
           ${t.inputSchema ? `<details><summary>输入 Schema</summary><pre class="out">${esc(JSON.stringify(t.inputSchema, null, 2))}</pre></details>` : ''}
           ${t.outputSchema ? `<details><summary>输出 Schema</summary><pre class="out">${esc(JSON.stringify(t.outputSchema, null, 2))}</pre></details>` : ''}
           ${t.examples && t.examples.length ? `<details><summary>示例数据</summary><pre class="out">${esc(t.examples[0])}</pre></details>` : ''}
@@ -136,8 +144,10 @@ export async function openTool(root, id, params) {
 
   await mod.render(body, ctx);
 
-  // 每个输出容器自动挂「复制」按钮（工具侧零改动）
+  // 每个输出容器自动挂「复制 / 下载 / 清空」按钮（工具侧零改动）
   mountCopyAffix(body);
+  // 输入区：拖拽文件与粘贴即填
+  mountInputDrop(body);
 
   const favBtn = root.querySelector('#fav-btn');
   const syncFav = () => {
@@ -165,6 +175,24 @@ export async function openTool(root, id, params) {
     }
   };
 
+  /** 填入示例：优先用工具自带的 example 处理器，其次回填注册表里的示例文本 */
+  const fillExample = () => {
+    if (ctx.handlers.example) {
+      ctx.handlers.example();
+      setStatus('已填入示例', 'ok');
+      return;
+    }
+    const sample = t.sample || (t.examples && t.examples[0]);
+    if (!sample) { notify('这个工具暂未提供示例数据'); return; }
+    const target = body.querySelector('textarea.io, textarea, input.txt');
+    if (!target) { notify('找不到可填入的输入框'); return; }
+    target.value = sample;
+    target.dispatchEvent(new Event('input', { bubbles: true }));
+    target.dispatchEvent(new Event('change', { bubbles: true }));
+    target.focus();
+    setStatus('已填入示例', 'ok');
+  };
+
   root.querySelector('#act-run').addEventListener('click', doRun);
   root.querySelector('#act-clear').addEventListener('click', () => {
     if (ctx.handlers.clear) ctx.handlers.clear();
@@ -174,7 +202,7 @@ export async function openTool(root, id, params) {
     if (ctx.handlers.copy) await ctx.handlers.copy();
     else notify('当前工具没有可复制的结果');
   });
-  root.querySelector('#act-example').addEventListener('click', () => ctx.handlers.example && ctx.handlers.example());
+  root.querySelector('#act-example').addEventListener('click', fillExample);
 
   const shareBtn = root.querySelector('#share-btn');
   shareBtn.addEventListener('click', () => {

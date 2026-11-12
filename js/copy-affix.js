@@ -1,13 +1,15 @@
-// 输出区复制按钮：给每个输出容器自动挂一个悬浮「复制」按钮
+// 输出区工具组：复制 / 下载 / 清空
 //
 // 约定：工具渲染输出时使用 pre.out / div.out / id 以 -out 结尾的容器，
 // 或显式标注 data-copy；本模块自动包裹并注入按钮，工具侧无需改动。
 // 输出内容变化时（工具执行、清空、报错）由 MutationObserver 自动同步。
-import { copyText } from './toast.js';
+import { copyText, notify } from './toast.js';
+import { icon } from './icons.js';
 
 const OUTPUT_SELECTOR = 'pre.out, div.out, [id$="-out"], [data-copy], .diff-wrap';
 const WRAP_CLASS = 'copy-wrap';
 const CHIP_CLASS = 'copy-chip';
+const ACTS_CLASS = 'copy-acts';
 
 let currentScope = null;
 let observer = null;
@@ -71,6 +73,39 @@ export function extractText(el) {
   return lines.join('\n').trim();
 }
 
+/** 按工具类型与内容猜扩展名，下载后可直接被编辑器识别 */
+export function guessExt(text, toolId = '') {
+  const id = String(toolId).toLowerCase();
+  const t = String(text || '').trim();
+  if (/yaml|yml/.test(id)) return 'yaml';
+  if (/sql/.test(id)) return 'sql';
+  if (/diff/.test(id)) return 'diff';
+  if (/env/.test(id)) return 'env';
+  if (/json/.test(id) && /^[[{]/.test(t)) return 'json';
+  if (/^[[{]/.test(t)) {
+    try { JSON.parse(t); return 'json'; } catch { /* 不是合法 JSON */ }
+  }
+  if (/^<\?xml|^<[a-zA-Z!]/.test(t)) return 'xml';
+  if (/-----BEGIN CERTIFICATE-----/.test(t)) return 'pem';
+  if (/-----BEGIN [A-Z ]*PRIVATE KEY-----/.test(t)) return 'key';
+  if (/^\w+=.*(&\w+=.*)+$/.test(t)) return 'txt';
+  return 'txt';
+}
+
+export function downloadText(text, toolId) {
+  const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const stamp = new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-');
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `${toolId || 'output'}-${stamp}.${guessExt(text, toolId)}`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  return a.download;
+}
+
 function isOutermost(el) {
   const parent = el.parentElement;
   if (!parent) return false;
@@ -83,36 +118,64 @@ function hasContent(el) {
   return (el.textContent || '').trim().length > 0;
 }
 
-function createChip(el) {
-  const chip = document.createElement('button');
-  chip.type = 'button';
-  chip.className = CHIP_CLASS;
-  chip.textContent = '复制';
-  chip.title = '复制这段输出';
-  chip.setAttribute('aria-label', '复制这段输出');
+function currentToolId() {
+  const m = location.hash.match(/#\/tool\/([\w-]+)/);
+  return m ? m[1] : 'output';
+}
 
-  let timer = null;
-  chip.addEventListener('click', async () => {
+function makeBtn(cls, name, label, onClick) {
+  const btn = document.createElement('button');
+  btn.type = 'button';
+  btn.className = cls;
+  btn.title = label;
+  btn.setAttribute('aria-label', label);
+  btn.innerHTML = icon(name, 14);
+  btn.addEventListener('click', onClick);
+  return btn;
+}
+
+function createActions(el) {
+  const box = document.createElement('div');
+  box.className = ACTS_CLASS;
+
+  const copyBtn = makeBtn(CHIP_CLASS, 'copy', '复制这段输出', async () => {
     const text = extractText(el);
     if (!text) return;
     const ok = await copyText(text);
-    chip.textContent = ok ? '✓ 已复制' : '复制失败';
-    chip.classList.toggle('is-done', ok);
-    chip.classList.toggle('is-fail', !ok);
-    clearTimeout(timer);
-    timer = setTimeout(() => {
-      chip.textContent = '复制';
-      chip.classList.remove('is-done', 'is-fail');
+    copyBtn.innerHTML = icon(ok ? 'check' : 'x', 14);
+    copyBtn.classList.toggle('is-done', ok);
+    copyBtn.classList.toggle('is-fail', !ok);
+    clearTimeout(copyBtn._timer);
+    copyBtn._timer = setTimeout(() => {
+      copyBtn.innerHTML = icon('copy', 14);
+      copyBtn.classList.remove('is-done', 'is-fail');
     }, 1400);
   });
-  return chip;
+
+  const dlBtn = makeBtn('copy-act', 'download', '下载为文件', () => {
+    const text = extractText(el);
+    if (!text) { notify('没有可下载的内容'); return; }
+    const name = downloadText(text, currentToolId());
+    notify('已下载 ' + name);
+  });
+  dlBtn.dataset.act = 'download';
+
+  const clearBtn = makeBtn('copy-act', 'trash', '清空输入与输出', () => {
+    const act = document.getElementById('act-clear');
+    if (act) act.click();
+    else notify('当前页面没有可清空的内容');
+  });
+  clearBtn.dataset.act = 'clear';
+
+  box.append(copyBtn, dlBtn, clearBtn);
+  return box;
 }
 
 function wrapOutput(el) {
   const parent = el.parentElement;
   if (parent && parent.classList.contains(WRAP_CLASS)) {
-    const chip = parent.querySelector(':scope > .' + CHIP_CLASS);
-    if (chip) chip.classList.toggle('is-empty', !hasContent(el));
+    const acts = parent.querySelector(':scope > .' + ACTS_CLASS);
+    if (acts) acts.classList.toggle('is-empty', !hasContent(el));
     return parent;
   }
   if (!isOutermost(el)) return null;
@@ -121,9 +184,9 @@ function wrapOutput(el) {
   wrap.className = WRAP_CLASS;
   el.parentNode.insertBefore(wrap, el);
   wrap.appendChild(el);
-  const chip = createChip(el);
-  chip.classList.toggle('is-empty', !hasContent(el));
-  wrap.appendChild(chip);
+  const acts = createActions(el);
+  acts.classList.toggle('is-empty', !hasContent(el));
+  wrap.appendChild(acts);
   return wrap;
 }
 
@@ -147,7 +210,7 @@ function requestSync() {
 }
 
 /**
- * 在工具内容容器上启用「输出自动复制按钮」。
+ * 在工具内容容器上启用「输出工具组（复制 / 下载 / 清空）」。
  * 切换工具时对新的容器重新挂载，旧的观察器自动断开。
  */
 export function mountCopyAffix(scope) {

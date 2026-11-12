@@ -1,6 +1,6 @@
 {
   "name": "stack-bench",
-  "version": "0.1.4",
+  "version": "0.2.0",
   "description": "Local-first toolbox for full-stack engineers — zero build, no data upload.",
   "private": true,
   "type": "module",
@@ -18,7 +18,8 @@
     "agent": "node agent/agent.js",
     "test": "node --test tests/*.test.mjs",
     "selftest:examples": "node tests/manual/examples-selftest.mjs",
-    "selftest:palette": "node tests/manual/palette-click-check.mjs"
+    "selftest:palette": "node tests/manual/palette-click-check.mjs",
+    "selftest:input-drop": "node tests/manual/input-drop-check.mjs"
   },
   "engines": {
     "node": ">=20"

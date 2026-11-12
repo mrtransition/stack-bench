@@ -46,7 +46,7 @@ async function testTool(t) {
   res.err = errBox ? errBox.textContent.trim().slice(0, 120) : '';
   // 输出区必须挂上「复制」按钮（js/copy-affix.js）
   res.copyChips = d.querySelectorAll('#tool-body .copy-chip').length;
-  res.copyVisible = d.querySelectorAll('#tool-body .copy-chip:not(.is-empty)').length;
+  res.copyVisible = d.querySelectorAll('#tool-body .copy-acts:not(.is-empty) .copy-chip').length;
   res.ok = !res.err && !res.js.length && !/失败/.test(res.status) && !!res.out;
   frame.remove();
   return res;

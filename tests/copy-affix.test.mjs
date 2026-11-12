@@ -3,7 +3,7 @@
  */
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { rowsToTsv } from '../js/copy-affix.js';
+import { rowsToTsv, guessExt } from '../js/copy-affix.js';
 
 test('rowsToTsv：单元格用制表符、行用换行', () => {
   assert.equal(
@@ -23,3 +23,24 @@ test('rowsToTsv：空值与缺失单元格保留占位', () => {
 test('rowsToTsv：空表格返回空字符串', () => {
   assert.equal(rowsToTsv([]), '');
 });
+
+test('guessExt：按工具类型给扩展名', () => {
+  assert.equal(guessExt('a: 1', 'json-yaml'), 'yaml');
+  assert.equal(guessExt('SELECT 1', 'sql-format'), 'sql');
+  assert.equal(guessExt('- a\n+ b', 'text-diff'), 'diff');
+});
+
+test('guessExt：按内容识别 JSON / XML / 证书', () => {
+  assert.equal(guessExt('{"a":1}'), 'json');
+  assert.equal(guessExt('[1,2]'), 'json');
+  assert.equal(guessExt('<?xml version="1.0"?><a/>'), 'xml');
+  assert.equal(guessExt('-----BEGIN CERTIFICATE-----\nMIIB\n-----END CERTIFICATE-----'), 'pem');
+  assert.equal(guessExt('-----BEGIN RSA PRIVATE KEY-----\nMIIB'), 'key');
+});
+
+test('guessExt：无法判断时回退 txt', () => {
+  assert.equal(guessExt('hello world'), 'txt');
+  assert.equal(guessExt('{bad json'), 'txt');
+  assert.equal(guessExt(''), 'txt');
+});
+

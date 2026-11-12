@@ -100,17 +100,17 @@ for (const [id, pattern] of TOOLS) {
 
   // 等输出出现
   for (let i = 0; i < 40; i++) {
-    const ready = await evaluate(`!!document.querySelector('#tool-body .copy-chip:not(.is-empty)')`);
+    const ready = await evaluate(`!!document.querySelector('#tool-body .copy-acts:not(.is-empty) .copy-chip')`);
     if (ready) break;
     await sleep(150);
   }
 
   const result = await evaluate(`(async () => {
-    const chip = document.querySelector('#tool-body .copy-chip:not(.is-empty)');
+    const chip = document.querySelector('#tool-body .copy-acts:not(.is-empty) .copy-chip');
     if (!chip) return { error: '没有可见的复制按钮' };
     chip.click();
     await new Promise(r => setTimeout(r, 250));
-    return { text: window.__copied || '', label: chip.textContent.trim() };
+    return { text: window.__copied || '', label: chip.getAttribute('aria-label') || chip.title || '' };
   })()`);
 
   const text = (result && result.text) || '';
