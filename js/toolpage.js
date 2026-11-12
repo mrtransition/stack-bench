@@ -3,6 +3,7 @@ import { get as getTool, EXEC_LABEL } from './registry.js';
 import { store } from './store.js';
 import { notify, copyText } from './toast.js';
 import { mountCopyAffix } from './copy-affix.js';
+import { icon } from './icons.js';
 import { encodeParams } from '../lib/codec.js';
 
 function esc(s) {
@@ -81,13 +82,13 @@ export async function openTool(root, id, params) {
           <h1>${esc(t.name)}</h1>
           <p class="muted">${esc(t.desc)}</p>
           <div class="badge-row">
-            <span class="badge exec-${t.executor}">⚙ ${EXEC_LABEL[t.executor] || t.executor}</span>
-            ${t.sensitive ? '<span class="badge sensitive">🔒 本地处理 · 不上传</span>' : '<span class="badge">↗ 可分享</span>'}
+            <span class="badge exec-${t.executor}"><i class="dot" aria-hidden="true"></i>${EXEC_LABEL[t.executor] || t.executor}</span>
+            ${t.sensitive ? `<span class="badge sensitive">${icon('lock', 11)} 本地处理 · 不上传</span>` : `<span class="badge">${icon('share', 11)} 可分享</span>`}
           </div>
         </div>
         <div class="head-actions">
-          <button id="fav-btn" class="icon-btn ${store.isFav(id) ? 'fav-on' : ''}" title="收藏 / 取消收藏" aria-label="收藏">★</button>
-          <button id="share-btn" class="icon-btn" title="${t.shareable ? '生成分享链接' : '敏感工具不生成包含输入的分享链接'}" ${t.shareable ? '' : 'disabled'}>↗ 分享</button>
+          <button id="fav-btn" class="icon-btn ${store.isFav(id) ? 'fav-on' : ''}" title="收藏 / 取消收藏" aria-label="收藏 / 取消收藏">${icon('star', 15)}</button>
+          <button id="share-btn" class="icon-btn" title="${t.shareable ? '生成分享链接' : '敏感工具不生成包含输入的分享链接'}" ${t.shareable ? '' : 'disabled'}>${icon('share', 14)} 分享</button>
         </div>
       </div>
 
@@ -105,7 +106,7 @@ export async function openTool(root, id, params) {
         <summary>说明与安全提示</summary>
         <div class="notes-body">
           <p>${esc(t.notes || '')}</p>
-          ${t.security ? `<p class="sec">🔒 ${esc(t.security)}</p>` : ''}
+          ${t.security ? `<p class="sec">${icon("lock", 12)} ${esc(t.security)}</p>` : ''}
           ${t.inputSchema ? `<details><summary>输入 Schema</summary><pre class="out">${esc(JSON.stringify(t.inputSchema, null, 2))}</pre></details>` : ''}
           ${t.outputSchema ? `<details><summary>输出 Schema</summary><pre class="out">${esc(JSON.stringify(t.outputSchema, null, 2))}</pre></details>` : ''}
           ${t.examples && t.examples.length ? `<details><summary>示例数据</summary><pre class="out">${esc(t.examples[0])}</pre></details>` : ''}

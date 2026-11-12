@@ -5,12 +5,16 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>StackBench · 全栈工程师工具集</title>
 <script>
-// 主题预加载，避免闪烁（默认赛博朋克）
+// 主题预加载，避免闪烁：用户手动选择过则记忆，否则跟随系统（默认中性深色，赛博朋克为可选彩蛋）
 try {
-  var _t = localStorage.getItem('wb.theme') || 'cyber';
+  var _t = localStorage.getItem('wb.theme');
+  if (_t !== 'dark' && _t !== 'light' && _t !== 'cyber') {
+    _t = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+  }
   document.documentElement.dataset.theme = _t;
-} catch (e) { document.documentElement.dataset.theme = 'cyber'; }
+} catch (e) { document.documentElement.dataset.theme = 'dark'; }
 </script>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -20,7 +24,7 @@ try {
     <span class="logo-mark">▚</span><span class="logo-text">StackBench</span>
   </a>
   <button id="open-search" class="search-btn" type="button">
-    <span class="s-ico">🔍</span><span class="s-txt">搜索工具、功能或关键词</span><kbd>Ctrl K</kbd>
+    <span class="s-ico" data-icon="search"></span><span class="s-txt">搜索工具、功能或关键词</span><kbd>Ctrl K</kbd>
   </button>
   <div class="topbar-right">
     <div class="agent-wrap">
@@ -38,8 +42,8 @@ try {
         </div>
       </div>
     </div>
-    <button id="theme-toggle" class="icon-btn" type="button" title="切换主题（赛博朋克 / 深色 / 浅色）" aria-label="切换主题">⚡</button>
-    <a class="icon-btn" href="#/settings" title="设置" aria-label="设置">⚙</a>
+    <button id="theme-toggle" class="icon-btn" type="button" title="切换主题（深色 / 浅色 / 赛博朋克）" aria-label="切换主题"></button>
+    <a class="icon-btn" href="#/settings" title="设置" aria-label="设置" data-icon="gearUi"></a>
   </div>
 </header>
 

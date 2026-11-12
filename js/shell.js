@@ -1,6 +1,7 @@
 // 全局骨架：左侧导航（收藏 / 最近 / 分类 / 设置）、折叠记忆、移动端抽屉
 import { all, CATEGORIES } from './registry.js';
 import { store } from './store.js';
+import { icon, CAT_ICON } from './icons.js';
 
 const NAV_KEY = 'wb.nav.collapsed';
 const EXPAND_KEY = 'wb.nav.expanded';
@@ -38,14 +39,14 @@ function setCollapsed(v) {
   try { localStorage.setItem(NAV_KEY, v ? '1' : '0'); } catch { /* 忽略 */ }
   shellEl.classList.toggle('nav-collapsed', v);
   toggleBtn.title = v ? '展开导航' : '折叠导航';
-  toggleBtn.textContent = v ? '▤' : '☰';
+  toggleBtn.innerHTML = icon(v ? 'panel' : 'menu', 16);
 }
 
 function render() {
   const collapsed = isCollapsed();
   shellEl.classList.toggle('nav-collapsed', collapsed);
   if (toggleBtn) {
-    toggleBtn.textContent = collapsed ? '▤' : '☰';
+    toggleBtn.innerHTML = icon(collapsed ? 'panel' : 'menu', 16);
     toggleBtn.title = collapsed ? '展开导航' : '折叠导航';
   }
 
@@ -61,8 +62,8 @@ function render() {
     return `
       <div class="cat ${open ? 'open' : ''} ${cat === c ? 'cur' : ''}">
         <button class="cat-head" type="button" data-cat="${esc(c)}" title="${esc(c)}">
-          <span class="chev">▸</span>
-          <span class="si-cat">${esc(c.slice(0, 1))}</span>
+          <span class="chev">${icon('chevron', 11)}</span>
+          <span class="si-cat">${icon(CAT_ICON[c] || 'dot', 14)}</span>
           <span class="sl">${esc(c)}</span>
           <span class="sc">${list.length}</span>
         </button>
@@ -76,10 +77,10 @@ function render() {
     <nav class="side-nav">
       <div class="side-group">
         <a class="side-item ${activeRoute === '/favorites' ? 'on' : ''}" href="#/favorites" title="收藏">
-          <span class="si">★</span><span class="sl">收藏</span><span class="sc">${favs.length}</span>
+          <span class="si">${icon('star', 15)}</span><span class="sl">收藏</span><span class="sc">${favs.length}</span>
         </a>
         <a class="side-item ${activeRoute === '/recent' ? 'on' : ''}" href="#/recent" title="最近使用">
-          <span class="si">🕘</span><span class="sl">最近使用</span><span class="sc">${recents.length}</span>
+          <span class="si">${icon('clock', 15)}</span><span class="sl">最近使用</span><span class="sc">${recents.length}</span>
         </a>
       </div>
       <div class="side-sep"></div>
@@ -87,7 +88,7 @@ function render() {
       <div class="cat-list">${catHtml}</div>
       <div class="side-sep"></div>
       <a class="side-item ${activeRoute === '/settings' ? 'on' : ''}" href="#/settings" title="设置">
-        <span class="si">⚙</span><span class="sl">设置</span>
+        <span class="si">${icon('gearUi', 15)}</span><span class="sl">设置</span>
       </a>
       <div class="side-foot">数据默认本地处理<br>敏感操作走本机 Agent</div>
     </nav>`;

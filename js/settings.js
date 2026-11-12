@@ -3,6 +3,7 @@ import { store } from './store.js';
 import { notify } from './toast.js';
 import { THEMES, applyTheme, currentTheme } from './theme.js';
 import { probeAgent } from './agent-status.js';
+import { icon } from './icons.js';
 
 function esc(s) {
   return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -24,7 +25,7 @@ export function renderSettings(app) {
     <nav class="crumbs"><a href="#/">首页</a><span class="sep">/</span><b>设置</b></nav>
     <div class="tool-head">
       <div>
-        <h1>⚙ 设置</h1>
+        <h1>${icon('gearUi', 18)} 设置</h1>
         <p class="muted">外观、本地 Agent 与本地数据管理。所有配置只保存在当前浏览器。</p>
       </div>
     </div>
@@ -35,8 +36,8 @@ export function renderSettings(app) {
         ${THEMES.map(t => `
           <button class="theme-card ${currentTheme() === t.id ? 'on' : ''}" data-theme-id="${t.id}" type="button">
             <span class="tc-swatch">${SWATCH[t.id].map(c => `<i style="background:${c}"></i>`).join('')}</span>
-            <span class="tc-name">${t.icon} ${t.name}</span>
-            <span class="tc-desc">${t.id === 'cyber' ? '默认 · 霓虹描边与网格底纹' : t.id === 'dark' ? '低干扰深色' : '明亮环境使用'}</span>
+            <span class="tc-name">${icon(t.icon, 14)} ${t.name}</span>
+            <span class="tc-desc">${t.id === 'dark' ? '默认 · 低干扰中性深色' : t.id === 'light' ? '明亮环境使用' : '彩蛋 · 霓虹描边与网格底纹'}</span>
           </button>`).join('')}
       </div>
     </section>
@@ -90,7 +91,7 @@ AGENT_PORT=7420 npm run agent</pre>
         <div class="kv-t"><kbd>↑</kbd> <kbd>↓</kbd><span>在面板中移动选择</span></div>
         <div class="kv-t"><kbd>Enter</kbd><span>打开选中工具</span></div>
         <div class="kv-t"><kbd>Esc</kbd><span>关闭面板 / 抽屉</span></div>
-        <div class="kv-t"><kbd>☰</kbd><span>折叠 / 展开左侧导航</span></div>
+        <div class="kv-t"><kbd>${icon('menu', 11)}</kbd><span>折叠 / 展开左侧导航（顶栏左侧按钮）</span></div>
       </div>
     </section>
 

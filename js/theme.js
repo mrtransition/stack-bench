@@ -1,14 +1,17 @@
-// 主题控制：赛博朋克（默认）/ 深色 / 浅色
+// 主题控制：深色（默认）/ 浅色 / 赛博朋克（彩蛋）
+// 循环顺序 dark → light → cyber，首次访问跟随系统（见 index.html 预加载）
 import { store } from './store.js';
+import { icon } from './icons.js';
 
 export const THEMES = [
-  { id: 'cyber', icon: '⚡', name: '赛博朋克' },
-  { id: 'dark', icon: '🌙', name: '深色' },
-  { id: 'light', icon: '☀️', name: '浅色' }
+  { id: 'dark', icon: 'moon', name: '深色' },
+  { id: 'light', icon: 'sun', name: '浅色' },
+  { id: 'cyber', icon: 'zap', name: '赛博朋克' }
 ];
 
 export function currentTheme() {
-  return document.documentElement.dataset.theme || 'cyber';
+  const t = document.documentElement.dataset.theme;
+  return THEMES.some(x => x.id === t) ? t : 'dark';
 }
 
 export function applyTheme(id) {
@@ -17,7 +20,7 @@ export function applyTheme(id) {
   store.setTheme(cur.id);
   const btn = document.getElementById('theme-toggle');
   if (btn) {
-    btn.textContent = cur.icon;
+    btn.innerHTML = icon(cur.icon, 16);
     btn.title = `当前：${cur.name} · 点击切换`;
   }
   window.dispatchEvent(new CustomEvent('wb:theme-changed', { detail: cur.id }));

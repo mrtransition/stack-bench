@@ -4,11 +4,19 @@
 
 ## [Unreleased]
 
+### Added — UI/交互/布局整改 P0（依据 docs/StackBench 页面 UI 交互 布局整改方案.md）
+- **默认主题切换 + 赛博朋克降噪**：首次访问跟随 `prefers-color-scheme`（默认中性深色），赛博朋克降级为可选彩蛋（循环顺序 深色→浅色→赛博朋克）；去掉三重发光与高亮底纹，只留一档阴影；主题切换 0.2s 平滑过渡
+- **SVG 图标系统**：新增 `js/icons.js`（内联线性 SVG，`stroke: currentColor`，零依赖零 CDN），替换框架层全部 UI emoji（导航 / 顶栏 / 卡片 / 徽标 / 收藏星 / 面包屑等）；分类图标、收藏星形、设置页主题卡同步换新
+- **首页索引式布局**：hero 升级（搜索占位「搜索 26 个工具…」）；收藏 / 最近使用合并为搜索框下方一行双栏紧凑区；9 分类改为**分类筛选 Tab 行**（带图标与计数徽标，点击即时过滤）；底部安全约定压缩为一行摘要 + 「详情」折叠
+- **组件与可访问性**：工具卡片 hover 上浮 + 阴影、`:active` 缩放；badge 改中性灰 + 状态圆点（仅「敏感」保留红色）；卡片描述两行截断；全局 `:focus-visible` 焦点态；`prefers-reduced-motion` 全局降级；补 `favicon.svg`（消除 404）
+
 ### Planned
 - 请求集合与历史持久化（仅本地）
 - GraphQL Schema 查看器
 - Cron 表达式反向生成
 - 离线 PWA（Service Worker 缓存）
+- P1：设计 token 收敛（字号/圆角/间距）、工具页三段式骨架、命令面板排序/高亮
+- P2：实时处理 + 行内错误定位、首访引导、撤销 toast、快捷键帮助
 
 详见 [ROADMAP.md](./ROADMAP.md)。
 
