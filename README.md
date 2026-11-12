@@ -40,7 +40,7 @@ npm run agent          # 等价于 node agent/agent.js
 ### 测试
 
 ```bash
-npm test               # 等价于 node --test tests/
+npm test               # 等价于 node --test tests/*.test.mjs
 ```
 
 ## 🧰 工具清单（26 个）

@@ -35,5 +35,5 @@ jobs:
           exit $fail
 
       - name: Unit tests
-        # 注意：node --test 的引号 glob 仅 Node 21+ 支持，用目录方式兼容 20/22
-        run: node --test tests/
+        # Linux 上由 shell 展开通配符（兼容 Node 20）；Windows 上由 Node 21+ 原生 glob 兜底
+        run: node --test tests/*.test.mjs

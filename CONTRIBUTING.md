@@ -32,7 +32,7 @@ node agent/agent.js     # 打印 http://127.0.0.1:7420 与随机 Token
 ```bash
 npm test
 # 等价于
-node --test tests/
+node --test tests/*.test.mjs
 ```
 
 CI 会在 Node 20 / 22 上执行同样的命令，以及全部 JS 文件的语法检查，PR 必须全绿才能合并。
